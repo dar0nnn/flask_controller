@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>шкалы</title>
+  <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.3.1.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='jquery.cookie.js') }}"></script>
+  <script type="text/javascript">
+    window.onload = function() {
+        getData();
+    }
+
+    var csrftoken = $.cookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    function getData() {
+        $.ajax({
+            type: 'GET',
+            url: '/scales/get_scales_local',
+            dataType: 'json',
+            data: {
+                'type': 'get'
+            },
+            success: function (json) {
+                loadMainTable(json);
+            },
+            error: function() { 
+                alert('Got an error');
+            }
+        });
+    }
+
+    function loadMainTable(scaleData) {
+        //alert(JSON.stringify(scaleData));
+        for (var i = 0; i < scaleData['conn center 1'].length; i++) {
+            addScaleToTable(scaleData['conn center 1'][i]);
+        }
+    }
+
+    function addScaleToTable(scaleData) {
+        var mainTable = document.getElementById('mainTable');
+        var scale = document.createElement('tr');
+        var name = document.createElement('td');
+        name.innerHTML = scaleData[0];
+        scale.appendChild(name);
+        var start = document.createElement('td');
+        start.innerHTML = scaleData[1];
+        scale.appendChild(start);
+        var stop = document.createElement('td');
+        stop.innerHTML = scaleData[2];
+        scale.appendChild(stop);
+        var duration = document.createElement('td');
+        duration.innerHTML = null;
+        scale.appendChild(duration);
+        var status_ = document.createElement('td');
+        status_.innerHTML = scaleData[3];
+        scale.appendChild(status_);
+        mainTable.appendChild(scale);
+    }
+
+    function addScale(BTN) {
+        BTN.parentNode.removeChild(BTN);
+        var mainTableBar = document.getElementById('mainTableBar');
+        var p = document.createElement('p');
+        var inp = document.createElement('input');
+        setAttributes(inp, {"id": "newScaleName"});
+        p.appendChild(inp);
+        var okBtn = document.createElement('button');
+        okBtn.innerHTML = 'Создать';
+        setAttributes(okBtn, {"onclick": "createScale()"});
+        p.appendChild(okBtn);
+        mainTableBar.appendChild(p);
+        //alert('ok');
+    }
+
+    function createScale() {
+        var newScaleName = document.getElementById('newScaleName');
+        $.ajax({
+            type: 'POST',
+            //url: '/scales/create_scale/' + newScaleName.value,
+            url: '/scales/create_scale',
+            dataType: 'json',
+            data: {
+                'scale_name': newScaleName.value
+            },
+            success: function (json) {
+                //alert('ok');
+                addScaleToTable([newScaleName.value, null, null, 0]);
+            },
+            error: function() { 
+                alert('Got an error');
+            }
+        });
+    }
+
+    function setAttributes(el, attrs) {
+        for(var key in attrs) {
+            el.setAttribute(key, attrs[key]);
+        }
+    }
+  </script>
+</head>
+
+<body>
+
+  <div>
+    <p id='mainTableBar'>
+      <button onclick='addScale(this)'>Зарегистрировать новую шкалу!</button>
+    </p>
+  </div>
+  
+  <div>
+      <table id="mainTable" cellspacing="2" border="1" cellpadding="5">
+        <thead>
+          <tr style="text-align:center">
+            <th>Name</th>
+            <th>Start</th>
+            <th>Stop</th>
+            <th>Duration</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+      </table>
+  </div>
+
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+# python 3.6.7
+flask
+sqlalchemy
+flask_script
+flask_migrate
+flask-sqlalchemy
+sqlalchemy-migrate
+flask-whooshalchemy
+pytest
+psycopg2
+numpy
+celery
