@@ -1,4 +1,4 @@
-# python 3.6.7
+# python 3.6.5
 flask
 sqlalchemy
 flask_script
@@ -8,5 +8,3 @@ sqlalchemy-migrate
 flask-whooshalchemy
 pytest
 psycopg2
-numpy
-celery
